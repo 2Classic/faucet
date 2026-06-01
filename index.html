@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Faucet Claim</title>
+
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      padding-top: 30px;
+      background: #f7f7f7;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      margin: auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .ad-top, .ad-bottom {
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .smartlink {
+      margin: 15px 0;
+      padding: 10px;
+      background: #eee;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #28a745;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- 🔥 TOP BANNER ADS (Adsterra) -->
+<div class="ad-top">
+  <script>
+    atOptions = {
+      'key' : 'd0b7a407ae94c8212033275b8bfd510a',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script src="https://www.highperformanceformat.com/d0b7a407ae94c8212033275b8bfd510a/invoke.js"></script>
+</div>
+
+<div class="box">
+
+  <h2>💰 Faucet Claim Page</h2>
+
+  <!-- 🔥 SMARTLINK ADS -->
+  <div class="smartlink">
+    <a href="https://www.effectivecpmnetwork.com/sacf91gw?key=14eefb6c15adcfeb4b826a552b5af477" target="_blank">
+      🔥 Sponsored Offer – Click to continue
+    </a>
+  </div>
+
+  <form id="claimForm">
+
+    <!-- hCaptcha -->
+    <div class="h-captcha" data-sitekey="YOUR_HCAPTCHA_SITE_KEY"></div>
+
+    <br>
+
+    <button type="submit">Verify & Claim</button>
+
+  </form>
+
+  <p id="msg" style="color:red;"></p>
+
+</div>
+
+<!-- 🔥 BOTTOM BANNER ADS (same ad for higher impressions) -->
+<div class="ad-bottom">
+  <script>
+    atOptions = {
+      'key' : 'd0b7a407ae94c8212033275b8bfd510a',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script src="https://www.highperformanceformat.com/d0b7a407ae94c8212033275b8bfd510a/invoke.js"></script>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const uid = urlParams.get("uid");
+  const token = urlParams.get("token");
+
+  const msg = document.getElementById("msg");
+
+  if (!uid || !token) {
+    msg.innerText = "Invalid access link. Please open from bot.";
+  }
+
+  document.getElementById("claimForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let captcha = hcaptcha.getResponse();
+
+    if (!captcha) {
+      alert("Please complete captcha");
+      return;
+    }
+
+    if (!uid || !token) {
+      alert("Missing verification data");
+      return;
+    }
+
+    msg.style.color = "green";
+    msg.innerText = "Verifying...";
+
+    setTimeout(() => {
+      window.location.href =
+        "https://t.me/YOUR_BOT_USERNAME?start=verify_" +
+        uid + "_" + token;
+    }, 1000);
+  });
+</script>
+
+</body>
+</html>
