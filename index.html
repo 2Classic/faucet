@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Faucet Claim</title>
-
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
   <style>
@@ -78,22 +78,22 @@
     </a>
   </div>
 
-  <form id="claimForm">
+  <div id="claimForm">
 
     <!-- hCaptcha -->
     <div class="h-captcha" data-sitekey="d258eb2e-8840-45d0-a92c-2b3a28ee9b42"></div>
 
     <br>
 
-    <button type="submit">Verify & Claim</button>
+    <button onclick="submitClaim()">Verify & Claim</button>
 
-  </form>
+  </div>
 
   <p id="msg" style="color:red;"></p>
 
 </div>
 
-<!-- 🔥 BOTTOM BANNER ADS (same ad for higher impressions) -->
+<!-- 🔥 BOTTOM BANNER ADS -->
 <div class="ad-bottom">
   <script>
     atOptions = {
@@ -108,6 +108,12 @@
 </div>
 
 <script>
+  // Initialize Telegram Web App
+  if(window.Telegram && window.Telegram.WebApp){
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  }
+
   const urlParams = new URLSearchParams(window.location.search);
   const uid = urlParams.get("uid");
   const token = urlParams.get("token");
@@ -118,8 +124,7 @@
     msg.innerText = "Invalid access link. Please open from bot.";
   }
 
-  document.getElementById("claimForm").addEventListener("submit", function(e){
-    e.preventDefault();
+  function submitClaim() {
 
     let captcha = hcaptcha.getResponse();
 
@@ -134,14 +139,26 @@
     }
 
     msg.style.color = "green";
-    msg.innerText = "Verifying...";
+    msg.innerText = "✅ Verified! Closing...";
+
+    // Disable button to prevent double claim
+    document.querySelector("button").disabled = true;
+    document.querySelector("button").innerText = "Processing...";
 
     setTimeout(() => {
+      // Trigger bot reward via deep link
       window.location.href =
-        "https://t.me/VeryTaskBot?start=faucet_" +
-        uid + "_" + token;
+        "https://t.me/VeryTaskBot?start=faucet_" + uid + "_" + token;
+
+      // Close Web App after short delay
+      setTimeout(() => {
+        if(window.Telegram && window.Telegram.WebApp){
+          window.Telegram.WebApp.close();
+        }
+      }, 500);
+
     }, 1000);
-  });
+  }
 </script>
 
 </body>
