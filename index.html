@@ -34,11 +34,11 @@
       border-radius: 8px;
       font-weight: bold;
       max-width: 300px;
+      cursor: pointer;
     }
 
-    .ad-link:hover {
-      background: #e65c00;
-    }
+    .ad-link:hover { background: #e65c00; }
+    .ad-link.clicked { background: #28a745; }
 
     button {
       padding: 10px 20px;
@@ -50,8 +50,17 @@
       margin-top: 10px;
     }
 
-    button:hover {
-      background: #218838;
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) { background: #218838; }
+
+    #timer {
+      color: #ff6600;
+      font-weight: bold;
+      margin: 8px 0;
     }
   </style>
 </head>
@@ -59,27 +68,26 @@
 <body>
 
 <div class="box">
-
   <h2>💰 Faucet Claim Page</h2>
+  <p style="color:#555; font-size:14px;">⚠️ You must click the sponsored link below before claiming.</p>
 
   <!-- 🔥 DIRECT LINK AD -->
-  <a class="ad-link" href="https://omg10.com/4/9787416" target="_blank">
-    🔥 Sponsored Offer — Click to Earn More!
+  <a class="ad-link" id="adLink" href="https://omg10.com/4/9787416" target="_blank" onclick="adClicked()">
+    🔥 Click Sponsored Link to Unlock Claim
   </a>
 
-  <div id="claimForm">
+  <div id="timerDiv" style="display:none;">
+    <p id="timer">⏳ Please wait <span id="countdown">10</span>s...</p>
+  </div>
 
+  <div id="claimForm">
     <!-- hCaptcha -->
     <div class="h-captcha" data-sitekey="d258eb2e-8840-45d0-a92c-2b3a28ee9b42"></div>
-
     <br>
-
-    <button onclick="submitClaim()">Verify & Claim</button>
-
+    <button onclick="submitClaim()" id="claimBtn" disabled>🔒 Click Ad First</button>
   </div>
 
   <p id="msg" style="color:red;"></p>
-
 </div>
 
 <script>
@@ -91,42 +99,79 @@
   const urlParams = new URLSearchParams(window.location.search);
   const uid = urlParams.get("uid");
   const token = urlParams.get("token");
-
   const msg = document.getElementById("msg");
+  const claimBtn = document.getElementById("claimBtn");
+  const adLink = document.getElementById("adLink")
+  const timerDiv = document.getElementById("timerDiv")
+  const countdown = document.getElementById("countdown")
 
   if(!uid || !token){
     msg.innerText = "Invalid access link. Please open from bot.";
   }
 
+  let adWasClicked = false
+
+  function adClicked(){
+    if(adWasClicked) return
+    adWasClicked = true
+
+    adLink.textContent = "✅ Ad Opened! Please wait..."
+    adLink.classList.add("clicked")
+    adLink.style.pointerEvents = "none"
+
+    // Start countdown
+    timerDiv.style.display = "block"
+    let secs = 10
+    countdown.innerText = secs
+
+    let interval = setInterval(() => {
+      secs--
+      countdown.innerText = secs
+      if(secs <= 0){
+        clearInterval(interval)
+        timerDiv.style.display = "none"
+        claimBtn.disabled = false
+        claimBtn.innerText = "✅ Verify & Claim"
+        msg.style.color = "green"
+        msg.innerText = "Ad verified! You can now claim."
+      }
+    }, 1000)
+  }
+
   function submitClaim(){
-    let captcha = hcaptcha.getResponse();
+    let captcha = hcaptcha.getResponse()
 
     if(!captcha){
-      alert("Please complete captcha");
-      return;
+      alert("Please complete the captcha")
+      return
     }
 
     if(!uid || !token){
-      alert("Missing verification data");
-      return;
+      alert("Missing verification data")
+      return
     }
 
-    msg.style.color = "green";
-    msg.innerText = "✅ Verified! Closing...";
+    if(!adWasClicked){
+      alert("Please click the sponsored link first!")
+      return
+    }
 
-    document.querySelector("button").disabled = true;
-    document.querySelector("button").innerText = "Processing...";
+    msg.style.color = "green"
+    msg.innerText = "✅ Verified! Closing..."
+
+    claimBtn.disabled = true
+    claimBtn.innerText = "Processing..."
 
     setTimeout(() => {
       window.location.href =
-        "https://t.me/VeryTaskBot?start=faucet_" + uid + "_" + token;
+        "https://t.me/VeryTaskBot?start=faucet_" + uid + "_" + token
 
       setTimeout(() => {
         if(window.Telegram && window.Telegram.WebApp){
-          window.Telegram.WebApp.close();
+          window.Telegram.WebApp.close()
         }
-      }, 500);
-    }, 1000);
+      }, 500)
+    }, 1000)
   }
 </script>
 
