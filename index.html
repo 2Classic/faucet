@@ -75,8 +75,8 @@
   <h2>💰 Faucet Claim Page</h2>
   <p style="color:#555; font-size:14px;">⚠️ You must click the sponsored link below before claiming.</p>
 
-  <!-- 🔥 DIRECT LINK AD -->
-  <a class="ad-link" id="adLink" href="https://omg10.com/4/9787416" target="_blank" onclick="adClicked()">
+  <!-- 🔥 DIRECT LINK AD (set dynamically via URL params) -->
+  <a class="ad-link" id="adLink" href="#" target="_blank" onclick="adClicked()">
     🔥 Click Sponsored Link to Unlock Claim
   </a>
 
@@ -116,6 +116,37 @@
   const timerDiv = document.getElementById("timerDiv")
   const countdown = document.getElementById("countdown")
 
+  // Build ad list from URL params (ad1url/ad1text, ad2url/ad2text, ad3url/ad3text)
+  let ads = []
+  for(let i = 1; i <= 3; i++){
+    let u = urlParams.get("ad" + i + "url")
+    let t = urlParams.get("ad" + i + "text")
+    if(u && t) ads.push({ url: u, text: t })
+  }
+  // Fallback single ad support (adurl/adtext) or default
+  if(ads.length === 0){
+    ads.push({
+      url: urlParams.get("adurl") || "https://omg10.com/4/9787416",
+      text: urlParams.get("adtext") || "🔥 Click Sponsored Link to Unlock Claim"
+    })
+  }
+
+  let currentAdIndex = 0
+  function showAd(index){
+    adLink.href = ads[index].url
+    adLink.textContent = ads[index].text
+  }
+  showAd(currentAdIndex)
+
+  // Rotate ad every 5 seconds (only before it's clicked)
+  let rotateInterval = null
+  if(ads.length > 1){
+    rotateInterval = setInterval(() => {
+      currentAdIndex = (currentAdIndex + 1) % ads.length
+      showAd(currentAdIndex)
+    }, 5000)
+  }
+
   if(!uid || !token){
     msg.innerText = "Invalid access link. Please open from bot.";
   }
@@ -125,6 +156,8 @@
   function adClicked(){
     if(adWasClicked) return
     adWasClicked = true
+
+    if(rotateInterval) clearInterval(rotateInterval)
 
     adLink.textContent = "✅ Ad Opened! Please wait..."
     adLink.classList.add("clicked")
