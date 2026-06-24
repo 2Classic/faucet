@@ -27,18 +27,32 @@
     .ad-link {
       display: block;
       margin: 15px auto;
-      padding: 12px 20px;
-      background: #ff6600;
-      color: white;
+      max-width: 318px;
       text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      max-width: 300px;
       cursor: pointer;
     }
 
-    .ad-link:hover { background: #e65c00; }
-    .ad-link.clicked { background: #28a745; }
+    .ad-image {
+      width: 318px;
+      height: 106px;
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto;
+      object-fit: cover;
+      border: none;
+    }
+
+    .ad-fallback-text {
+      display: block;
+      padding: 12px 20px;
+      background: #ff6600;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .ad-link.clicked .ad-fallback-text { background: #28a745; }
 
     button {
       padding: 10px 20px;
@@ -77,7 +91,8 @@
 
   <!-- 🔥 DIRECT LINK AD (set dynamically via URL params) -->
   <a class="ad-link" id="adLink" href="#" target="_blank" onclick="adClicked()">
-    🔥 Click Sponsored Link to Unlock Claim
+    <img class="ad-image" id="adImage" src="" alt="Sponsored Ad" style="display:none;">
+    <span class="ad-fallback-text" id="adFallbackText">🔥 Click Sponsored Link to Unlock Claim</span>
   </a>
 
   <div id="timerDiv" style="display:none;">
@@ -113,28 +128,41 @@
   const msg = document.getElementById("msg");
   const claimBtn = document.getElementById("claimBtn");
   const adLink = document.getElementById("adLink")
+  const adImage = document.getElementById("adImage")
+  const adFallbackText = document.getElementById("adFallbackText")
   const timerDiv = document.getElementById("timerDiv")
   const countdown = document.getElementById("countdown")
 
-  // Build ad list from URL params (ad1url/ad1text, ad2url/ad2text, ad3url/ad3text)
+  // Build ad list from URL params (ad1url/ad1text/ad1img, ad2..., ad3...)
   let ads = []
   for(let i = 1; i <= 3; i++){
     let u = urlParams.get("ad" + i + "url")
     let t = urlParams.get("ad" + i + "text")
-    if(u && t) ads.push({ url: u, text: t })
+    let img = urlParams.get("ad" + i + "img")
+    if(u && t) ads.push({ url: u, text: t, img: img || null })
   }
-  // Fallback single ad support (adurl/adtext) or default
+  // Fallback single ad support (adurl/adtext/adimg) or default
   if(ads.length === 0){
     ads.push({
       url: urlParams.get("adurl") || "https://omg10.com/4/9787416",
-      text: urlParams.get("adtext") || "🔥 Click Sponsored Link to Unlock Claim"
+      text: urlParams.get("adtext") || "🔥 Click Sponsored Link to Unlock Claim",
+      img: urlParams.get("adimg") || null
     })
   }
 
   let currentAdIndex = 0
   function showAd(index){
-    adLink.href = ads[index].url
-    adLink.textContent = ads[index].text
+    let ad = ads[index]
+    adLink.href = ad.url
+    if(ad.img){
+      adImage.src = ad.img
+      adImage.style.display = "block"
+      adFallbackText.style.display = "none"
+    } else {
+      adImage.style.display = "none"
+      adFallbackText.style.display = "block"
+      adFallbackText.textContent = ad.text
+    }
   }
   showAd(currentAdIndex)
 
@@ -159,7 +187,9 @@
 
     if(rotateInterval) clearInterval(rotateInterval)
 
-    adLink.textContent = "✅ Ad Opened! Please wait..."
+    adImage.style.display = "none"
+    adFallbackText.style.display = "block"
+    adFallbackText.textContent = "✅ Ad Opened! Please wait..."
     adLink.classList.add("clicked")
     adLink.style.pointerEvents = "none"
 
