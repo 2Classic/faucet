@@ -151,14 +151,26 @@
   }
 
   let currentAdIndex = 0
+
+  // Reset the onerror handler each time so it doesn't carry over a stale image's failure
+  adImage.onerror = null
+
   function showAd(index){
     let ad = ads[index]
     adLink.href = ad.url
     if(ad.img){
+      // If the image URL is broken/invalid, gracefully fall back to text instead of a broken icon
+      adImage.onerror = function(){
+        adImage.style.display = "none"
+        adFallbackText.style.display = "block"
+        adFallbackText.textContent = ad.text
+        adImage.onerror = null
+      }
       adImage.src = ad.img
       adImage.style.display = "block"
       adFallbackText.style.display = "none"
     } else {
+      adImage.onerror = null
       adImage.style.display = "none"
       adFallbackText.style.display = "block"
       adFallbackText.textContent = ad.text
